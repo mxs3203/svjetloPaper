@@ -10,7 +10,7 @@ from sklearn.utils import shuffle
 from sklearn.decomposition import NMF
 
 OPTIMAL_K_RUN = False
-data = pd.read_csv("ALL_DATA.csv")
+data = pd.read_csv("derived_data/ALL_DATA.csv")
 curve_columns = data.columns[1:152]
 data[curve_columns] = data[curve_columns].applymap(lambda x: max(0, x))
 

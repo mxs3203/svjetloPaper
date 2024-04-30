@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import glob
 from tqdm import tqdm
 
-data = pd.read_csv("ALL_DATA.csv")
+data = pd.read_csv("derived_data/ALL_DATA.csv")
 data['date'] = data['date'].astype(str)
 curve_columns = data.columns[1:152]
 

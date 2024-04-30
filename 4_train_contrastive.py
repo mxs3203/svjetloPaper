@@ -23,11 +23,11 @@ else:
     print("CUDA is not available. PyTorch is using CPU.")
     device = "cpu"
 
-for output_size_ in [2,3,4,5,6,7,8,9]:
+for output_size_ in [7]:
     for bs in [1024]:
-        with open("X.pck", 'rb') as f:
+        with open("derived_data/X.pck", 'rb') as f:
             X = pickle.load(f)
-        with open("Y.pck", 'rb') as f:
+        with open("derived_data/Y.pck", 'rb') as f:
             Y = pickle.load(f)
 
         print(np.shape(X), np.shape(Y))
@@ -37,7 +37,7 @@ for output_size_ in [2,3,4,5,6,7,8,9]:
         num_layers = 2 # Number of LSTM layers
         batch_size = bs
         learning_rate = 0.0001
-        num_epochs = 400
+        num_epochs = 500
         temp = 0.5
         base_temperature = 0.5
         output_size = output_size_
@@ -161,7 +161,7 @@ for output_size_ in [2,3,4,5,6,7,8,9]:
                     plt.legend()
                     run.log({"UMAP": plt})
 
-                    if epoch > 380:
+                    if epoch > 1:
                         reducer = umap.UMAP()
                         embedding = pd.DataFrame(reducer.fit_transform(umap_data.drop(columns=['label'])))
                         embedding['label'] = labels
