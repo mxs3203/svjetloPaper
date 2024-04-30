@@ -36,6 +36,7 @@ def simplify_column_names(df):
 all_data_for_modeling = []
 for folder in tqdm.tqdm(glob.glob("{}/*".format(INPUT_FOLDER))): # for every measurment folder
     if os.path.isfile("{}/spectra_merged.csv".format(folder)):
+        print(folder)
         apogee = pd.read_csv("{}/spectra_merged.csv".format(folder))
         apogee['TIMETAG2'] = pd.to_datetime(apogee['TIMETAG2'])
         # DW
@@ -67,7 +68,7 @@ for folder in tqdm.tqdm(glob.glob("{}/*".format(INPUT_FOLDER))): # for every mea
 
         normalized_data_dw = pd.DataFrame(np.array(merged[dw_columns].values, dtype='float32')/
                                        np.array(merged[apogee_columns].values, dtype="float32"))
-        normalized_data_dw['TIMETAG2'] = merged['TIMETAG2']
+        normalized_data_dw['TIMETAG2'] = merged['TIMETAG2'].values
         normalized_data_dw.columns = common_columns
         normalized_data_dw = normalized_data_dw.dropna()
         # UW
@@ -94,17 +95,19 @@ for folder in tqdm.tqdm(glob.glob("{}/*".format(INPUT_FOLDER))): # for every mea
         normalized_data_dw = pd.merge_asof(normalized_data_dw, depth.sort_values('TIMETAG2'), on='TIMETAG2',
                                            tolerance=pd.Timedelta('3s'),
                                            direction='nearest', allow_exact_matches=True)
+        if np.shape(normalized_data_uw)[0] > 5 and np.shape(normalized_data_dw)[0] > 5:
+            normalized_data_dw = normalized_data_dw.iloc[:normalized_data_dw['Meter'].idxmax() + 1]
+            normalized_data_uw = normalized_data_uw.iloc[:normalized_data_uw['Meter'].idxmax() + 1]
+            normalized_data_dw['location'] = location
+            normalized_data_dw['date'] = date
+            normalized_data_dw['sensor'] = 'DW'
+            normalized_data_uw['location'] = location
+            normalized_data_uw['date'] = date
+            normalized_data_uw['sensor'] = 'UW'
 
-        normalized_data_dw['location'] = location
-        normalized_data_dw['date'] = date
-        normalized_data_dw['sensor'] = 'DW'
-        normalized_data_uw['location'] = location
-        normalized_data_uw['date'] = date
-        normalized_data_uw['sensor'] = 'UW'
-
-        total_data = pd.concat([normalized_data_uw, normalized_data_dw])
-        total_data.to_csv("{}/everything_merged_and_normalized.csv".format(folder))
-        all_data_for_modeling.append(total_data)
+            total_data = pd.concat([normalized_data_uw, normalized_data_dw])
+            total_data.to_csv("{}/everything_merged_and_normalized.csv".format(folder))
+            all_data_for_modeling.append(total_data)
     else:
         print("Error: Merged Apogee data was supposed to be in the folder")
 
