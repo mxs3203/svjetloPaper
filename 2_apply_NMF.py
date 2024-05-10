@@ -16,6 +16,19 @@ data = pd.read_csv("ALL_DATA.csv")
 curve_columns = data.columns[1:152]
 scaler = MinMaxScaler()
 data[curve_columns] = scaler.fit_transform(data[curve_columns])
+'''
+Alternative  - Normalize per sensor
+data_uw = data[data['sensor'] == 'UW']
+data_dw = data[data['sensor'] == 'DW']
+scaler = MinMaxScaler()
+data_uw[curve_columns] = scaler.fit_transform(data_uw[curve_columns])
+scaler2 = MinMaxScaler()
+data_dw[curve_columns] = scaler2.fit_transform(data_dw[curve_columns])
+data = pd.concat([data_dw, data_uw])
+'''
+data['avgIntensity'] = data[curve_columns].mean(axis=1)
+data = data[(data['Meter'] > 2) & (data['avgIntensity'] < 0.4)]
+
 
 if OPTIMAL_K_RUN:
     results = []
@@ -45,7 +58,7 @@ if OPTIMAL_K_RUN:
                  color='black')
     plt.savefig("plots/F2_optimal_k.pdf", format="pdf")
     #plt.show()
-
+sb.set_theme(style="whitegrid")
 K = 5
 nmf = NMF(n_components=K,  init='nndsvdar',
                                 random_state=7, solver='mu',
