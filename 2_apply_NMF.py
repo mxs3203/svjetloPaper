@@ -39,9 +39,12 @@ if OPTIMAL_K_RUN:
         t_stat, p_value = ttest_ind(group1, group2)
         print(f"T-test between K={unique_K_values[i]} and K={unique_K_values[i + 1]}:")
         print(f"  t-statistic: {t_stat:.2f}, p-value: {p_value:.4f}")
-        plt.text(i + 0.5, max(group1.max(), group2.max()), p_value, ha='center', va='bottom', color='red')
-
-    plt.show()
+        plt.text(i + 0.5, max(group1.max(), group2.max()), round(p_value, 4),
+                 ha='center',
+                 va='bottom',
+                 color='black')
+    plt.savefig("plots/F2_optimal_k.pdf", format="pdf")
+    #plt.show()
 
 K = 5
 nmf = NMF(n_components=K,  init='nndsvdar',
@@ -54,7 +57,8 @@ tmp = pd.DataFrame(H).T
 tmp.columns = ['S1', 'S2', 'S3', 'S4', 'S5']
 tmp['nm'] = curve_columns.values
 tmp = tmp.melt(id_vars=['nm'])
-plt.figure(figsize=(25,12))
+tmp['nm'] = tmp['nm'].astype('int')
+plt.figure(figsize=(10,7))
 p = sb.lineplot(tmp, y='value', x='nm',
                hue='variable',
                palette=sb.color_palette("tab10"))
@@ -63,7 +67,7 @@ p.set_xlabel("nm",fontsize=30)
 p.set_ylabel("Value",fontsize=30)
 plt.xticks(rotation=90)
 plt.title("Signatures Based on all Data")
-plt.show()
+plt.savefig("plots/F2_signatures.pdf", format="pdf")
 
 data['S1'] = W[:, 0]
 data['S2'] = W[:, 1]
